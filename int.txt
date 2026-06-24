@@ -1,0 +1,55 @@
+=== ERUDA ARCADE - SERVICE WORKER INTEGRATION ===
+
+Agrega esto a tu archivo de entrada (index.html, main.js, o app.js):
+
+========== OPCIÓN 1: En el <head> del HTML ==========
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/ErudaArcade-sw.js')
+    .then(() => console.log('[ErudaArcade] SW registrado'))
+    .catch(err => console.warn('[ErudaArcade] SW error:', err));
+}
+</script>
+
+========== OPCIÓN 2: En JavaScript (entry point) ==========
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/ErudaArcade-sw.js')
+}
+
+========== CONDICIONAL (solo en desarrollo) ==========
+
+// Vite / CRA / Webpack
+if (process.env.NODE_ENV === 'development' && 'serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/ErudaArcade-sw.js')
+}
+
+========== SOLO LOCALHOST ==========
+
+// Solo activa en desarrollo local
+if (location.hostname === 'localhost' && 'serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/ErudaArcade-sw.js')
+}
+
+=====================================================
+IMPORTANTE:
+- El archivo ErudaArcade-sw.js debe estar en la RAÍZ del proyecto (/ErudaArcade-sw.js)
+- Funciona en localhost (http://localhost:xxxx)
+- Para producción requiere HTTPS (Netlify, Vercel, GitHub Pages, Hostinger con SSL)
+- En localhost usa http://localhost:xxxx (NO 127.0.0.1, NO 0.0.0.0)
+
+TABS INCLUIDAS:
+  Console    - Logs, errors, etc.
+  Elements   - DOM viewer
+  Network    - Request list
+  Resources  - Storage, cookies
+  Info       - URL, UA
+  Snippets   - Quick scripts
+  Sources    - Source viewer
+  AppTab     - IndexedDB, Cache API, SW status, localStorage/sessionStorage editor
+  NetWat     - Network waterfall con timing DNS/TCP/TLS/Request/Response
+  Elements+  - DOM elements con event listeners
+  ObjInspect - Object tree viewer (prototypes, getters/setters)
+  Settings   - Eruda config
+=====================================================
