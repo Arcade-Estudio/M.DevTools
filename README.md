@@ -1,83 +1,101 @@
-# ErudaArcade - Mobile DevTools
+# ErudaArcade
 
-**ErudaArcade** es un toolkit de debugging para dispositivos móviles que inyecta automáticamente [Eruda](https://github.com/liriliri/eruda) (una consola de desarrollo para mobile) y **plugins custom** en cualquier página web mediante un Service Worker.
-
-## Estructura del proyecto
-
-```
-📁 M.DevTools/
-├── ErudaArcade-sw.js     # Service Worker que inyecta Eruda + plugins
-├── int.txt               # Instrucciones de instalación
-├── test/
-│   ├── index.html        # Demo: SocialFeed con scroll infinito, likes, etc.
-│   └── eruda-inject.js   # Fallback standalone de plugins (sin SW)
-└── README.md
-```
-
-## Cómo funciona
-
-### 1. Service Worker (`ErudaArcade-sw.js`)
-
-- Se registra en el navegador y **escucha peticiones `navigate`** (carga de páginas HTML).
-- Cuando detecta una, **inyecta Eruda desde CDN + plugins custom** en el HTML antes de entregarlo.
-- Esto significa que **Eruda aparece automáticamente** en todas las páginas del proyecto sin tener que agregar nada manualmente.
-
-```
-Navegador → request → SW intercepta → inyecta Eruda → responde HTML modificado
-```
-
-### 2. Fallback directo (`test/eruda-inject.js`)
-
-Si el Service Worker no puede inyectar Eruda (ej: modo incógnito donde los SW no funcionan), el `index.html` carga Eruda directamente desde CDN tras 3 segundos de timeout.
-
-### 3. Plugins custom (AppTab)
-
-Todos los plugins están unificados en una sola pestaña **AppTab** con 4 sub-tabs:
-
-| Tab | Descripción |
-|-----|-------------|
-| **App** | Inspector completo del navegador: Service Worker, localStorage, sessionStorage, IndexedDB, Cache API, Cookies, Network info, Device info, Battery, Performance, Console history, Notifications, Sensores |
-| **NetWat** | Waterfall en tiempo real con timing DNS / TCP / TLS / Request / Response |
-| **Elements+** | Lista de elementos DOM con sus event listeners (click, touch, teclado, etc.) |
-| **Inspect** | Object tree viewer interactivo: explorá `window`, `document`, `navigator` o cualquier objeto JS con getters/setters |
-
-### Tabs incluidas (Eruda nativas)
-
-- Console, Elements, Network, Resources, Info, Snippets, Sources, Settings
+**Mobile debugging toolkit** que inyecta automáticamente [Eruda](https://github.com/liriliri/eruda) + plugins custom en cualquier proyecto web mediante un Service Worker.
 
 ## Instalación
 
-Agregá esto en el `<head>` de tu HTML o en tu entry point JS:
-
-```html
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/ErudaArcade-sw.js')
-}
-</script>
+```bash
+npm install eruda-arcade
 ```
 
-**Requisitos:**
-- El archivo `ErudaArcade-sw.js` debe estar en la **raíz** del proyecto (`/ErudaArcade-sw.js`).
-- En desarrollo local: usar `http://localhost:xxxx` (NO `127.0.0.1`).
-- En producción: requiere HTTPS (Netlify, Vercel, GitHub Pages, Hostinger con SSL, etc.).
+## Uso rápido
 
-## Demo
+### Opción A: Auto (recomendada)
 
-Abrí `test/index.html` en localhost para ver un SocialFeed funcional con:
-- Scroll infinito
-- Likes con animación
-- Composer de tweets
-- Eruda inyectado automáticamente (via SW o fallback directo)
-- Debug badge en tiempo real
+Agrega el script al `<head>` de tu HTML:
 
-## Stack
+```html
+<script src="node_modules/eruda-arcade/index.js" data-auto></script>
+```
 
-- [Eruda](https://github.com/liriliri/eruda) - Consola de debugging mobile
-- Service Worker API
-- PerformanceObserver / Performance API
-- IndexedDB, Cache Storage, Network Information API, Battery API, Sensors API
+Eruda aparecerá automáticamente en todas las páginas. Si el Service Worker no funciona (modo incógnito), carga Eruda directamente desde CDN.
+
+### Opción B: Con bundler (Vite, Webpack, etc.)
+
+```js
+import { register } from 'eruda-arcade'
+register()
+```
+
+### Opción C: CLI
+
+```bash
+npx eruda-arcade setup
+```
+
+Esto copia `sw.js` a tu proyecto y muestra instrucciones de configuración.
+
+## Cómo funciona
+
+1. **Service Worker** (`sw.js`): intercepta peticiones HTML y las modifica para inyectar Eruda + plugins custom antes de `</head>`.
+2. **Fallback directo**: si el SW no puede inyectar (ej: incógnito), carga Eruda desde CDN tras 3 segundos.
+3. **Plugins custom**: pestaña **AppTab** con 4 sub-tabs:
+
+| Tab | Descripción |
+|-----|-------------|
+| **App** | Inspector completo: SW, localStorage, sessionStorage, IndexedDB, Cache API, Cookies, Network, Device, Battery, Performance, Console, Notifications, Sensores |
+| **NetWat** | Waterfall en tiempo real con timing DNS / TCP / TLS / Request / Response |
+| **Elements+** | Elementos DOM con event listeners |
+| **Inspect** | Object tree viewer interactivo (`window`, `document`, cualquier objeto) |
+
+## API
+
+```js
+import erudaArcade from 'eruda-arcade'
+
+// Registrar Service Worker + fallback
+await erudaArcade.register()
+await erudaArcade.register({ swPath: '/custom-sw.js' })
+
+// Auto-init (SW + fallback con timeout)
+erudaArcade.auto()
+
+// Inicializar Eruda manualmente (si ya está cargado)
+erudaArcade.init({ transparency: 0.8, displaySize: 50 })
+
+// Inyectar código de plugin en la página
+erudaArcade.injectPlugin(pluginCodeString)
+```
+
+## Desarrollo local
+
+```bash
+git clone git@github.com:Arcade-Estudio/M.DevTools.git
+cd M.DevTools
+npm install
+npx eruda-arcade setup
+```
+
+Abrí `test/index.html` en localhost para ver la demo.
+
+## Estructura del paquete
+
+```
+eruda-arcade/
+├── index.js       # Entry point: register(), auto(), init()
+├── sw.js          # Service Worker (autocontenido)
+├── plugins.js     # Plugin code (AppTab)
+├── bin/cli.js     # CLI: npx eruda-arcade setup
+├── test/          # Demo: SocialFeed
+└── README.md
+```
+
+## Requisitos
+
+- HTTPS en producción (Netlify, Vercel, GitHub Pages, etc.)
+- En local: `http://localhost:xxxx`
+- Node >= 14
 
 ---
 
-Creado por [Arcade Estudio](https://github.com/Arcade-Estudio)
+[MIT License](LICENSE) — Creado por [Arcade Estudio](https://github.com/Arcade-Estudio)

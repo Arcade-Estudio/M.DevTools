@@ -1,0 +1,37 @@
+{
+  "name": "eruda-arcade",
+  "version": "1.0.0",
+  "description": "Mobile debugging toolkit that auto-injects Eruda + custom plugins via Service Worker",
+  "keywords": [
+    "eruda",
+    "debug",
+    "mobile",
+    "service-worker",
+    "devtools",
+    "console"
+  ],
+  "homepage": "https://github.com/Arcade-Estudio/M.DevTools",
+  "bugs": "https://github.com/Arcade-Estudio/M.DevTools/issues",
+  "license": "MIT",
+  "author": "Arcade Estudio",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "eruda-arcade": "./bin/cli.js"
+  },
+  "files": [
+    "index.js",
+    "sw.js",
+    "plugins.js",
+    "bin/",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Arcade-Estudio/M.DevTools.git"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}
